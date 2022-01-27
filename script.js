@@ -35,7 +35,12 @@ radioOver.addEventListener('click', changeMode);
 radioClick.addEventListener('click', changeMode);
 let grid = cont.children;
 
+// ---------- Clear grid ---------- //
+
 function clearGrid(){
+    let grid = cont.children;
+
+
     for(let square of grid){
         square.style.backgroundColor = '#fff';
     }
@@ -77,6 +82,13 @@ function resizeGrid(){
             
                 cont.append(grid);
             }
+        }else{
+            for(let i=0;i<newSize**2;i++){
+                let grid = document.createElement('div');
+                grid.classList.add('grid');            
+                cont.append(grid);
+            }
+            selectSpecificColor();
         }
         
     }else{
@@ -86,13 +98,14 @@ function resizeGrid(){
 
 // ---------- Chage color ---------- //
 
-function changeColor(color){
+function changeColor(){
     
     if(this.value === 'black'){
 
         for(let square of grid){
             square.removeEventListener(action,changeRandomColor);
             square.removeEventListener(action,changeWhiteColor);
+            square.removeEventListener(action, changeSpecificColor);
             square.addEventListener(action,changeBlackColor);
         }
 
@@ -101,6 +114,7 @@ function changeColor(color){
         for(let square of grid){
             square.removeEventListener(action,changeWhiteColor);
             square.removeEventListener(action,changeBlackColor);
+            square.removeEventListener(action, changeSpecificColor);
             square.addEventListener(action,changeRandomColor);
             }
 
@@ -109,6 +123,7 @@ function changeColor(color){
         for(let square of grid){
             square.removeEventListener(action,changeBlackColor);
             square.removeEventListener(action,changeRandomColor);
+            square.removeEventListener(action, changeSpecificColor);
             square.addEventListener(action,changeWhiteColor);
         }
 
@@ -117,6 +132,7 @@ function changeColor(color){
     blackColor.classList.remove('selected-color');
     randomColor.classList.remove('selected-color');
     eraseBtn.classList.remove('selected-color');
+    specificColorContainer.style.cssText = "border: 4px solid black; box-shadow: 0"
 
     this.classList.add('selected-color');
 }
@@ -135,6 +151,8 @@ function changeRandomColor(){
     this.style.backgroundColor = `hsl(${hue}, 100%, 50%)`;
 }
 
+
+
 // ---------- Change mode ---------- //
 
 function changeMode(){
@@ -142,6 +160,7 @@ function changeMode(){
             square.removeEventListener(action,changeRandomColor);
             square.removeEventListener(action,changeWhiteColor);
             square.removeEventListener(action,changeBlackColor);
+            square.removeEventListener(action, changeSpecificColor);
     }
 
     action = this.value;
@@ -160,6 +179,8 @@ function changeMode(){
         for(let square of grid){
             square.addEventListener(this.value,changeWhiteColor);
         }
+    }else{            
+        selectSpecificColor();
     }
 }
 
@@ -209,6 +230,7 @@ function changeLightness(){
 
     container.style.cssText = `background: linear-gradient(270deg, hsl(0, 100%, ${lightness}%) 0%, hsl(312, 100%, ${lightness}%) 16.1%, hsl(240, 100%, ${lightness}%) 35.2%, hsl(179, 100%, ${lightness}%) 48.8%, hsl(101, 100%, ${lightness}%) 70%, hsl(56, 100%, ${lightness}%) 83.7%, hsl(0, 100%, ${lightness}%) 100%);`;
     colorCircle.style.cssText = `background: hsl(${clr}, 100%, ${lightness}%)`;
+    selectSpecificColor();
 }
 
 // ---------- Drag ---------- //
@@ -249,5 +271,40 @@ function dragElement(element) {
   function closeDragElement() {
     document.onmouseup = null;
     document.onmousemove = null;
+
+    selectSpecificColor();
   }
 }
+
+// ---------- Use selected color ---------- //
+
+specificColorContainer.addEventListener('click', changeBorder);
+
+function changeBorder(){
+    blackColor.classList.remove('selected-color');
+    randomColor.classList.remove('selected-color');
+    eraseBtn.classList.remove('selected-color');
+
+    this.style.cssText = "border: 6px solid black; box-shadow: 0 0 15px black;";
+}
+
+function selectSpecificColor(){
+    let grid = cont.children;
+
+    for(let square of grid){
+        square.removeEventListener(action,changeRandomColor);
+        square.removeEventListener(action,changeWhiteColor);
+        square.removeEventListener(action,changeBlackColor);
+
+        square.addEventListener(action, changeSpecificColor);
+    }
+}
+
+function changeSpecificColor(){
+    let rect = container.getBoundingClientRect();
+    let color = (draggable.offsetLeft - rect.left + 8)*2;
+    let lightness = inputLightness.value;
+
+    this.style.backgroundColor = `hsl(${color}, 100%, ${lightness}%)`;
+}
+
